@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Post Page";
+}
+
+@model Post
+
+@{
+    
+}
+
+<div class="text-center" >
+    <h1 style="text-align: center">Caleb VanDerMaas is</h1>
+    <h2 class="display-3" style="text-align: center">@Model.Title</h2>
+    @if (!String.IsNullOrEmpty(Model.Image))
+    {
+        var image_path = $"/Image/{Model.Image}";
+        <img src="@image_path" width="500px"/>
+    }
+    <p>@Html.Raw(Model.Body?.Replace("\n", "<br />"))</p>
+</div>

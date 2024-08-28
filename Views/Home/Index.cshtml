@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model IEnumerable<Post>
+<div class="text-center">
+    <h1 class="display-4" style="text-align: center;">Caleb VanDerMaas is...</h1>
+</div>
+
+<div>
+    <ul>
+        @foreach (var post in Model)
+        {
+            <li>
+                <a asp-controller="Home" asp-action="Post" asp-route-id="@post.Id">
+                    @post.Title
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+

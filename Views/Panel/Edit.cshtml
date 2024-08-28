@@ -1,0 +1,29 @@
+﻿@model PostViewModel
+
+<link href="~/lib/Trumbowyg-main/dist/ui/trumbowyg.min.css" rel="stylesheet"/>
+<div>
+    <form asp-controller="Panel" asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input asp-for="Id" type="hidden"/>
+        <div style="margin-bottom: 15px;">
+            <label>Title</label>
+            <input asp-for="Title"/>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Body</label>
+            <textarea id="editor" asp-for="Body" rows="10" style="width: 100%"></textarea>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Image</label>
+            <input asp-for="Image"/>
+        </div>
+        <input type="submit" value="Submit" style="margin-top: 15px;"/>
+    </form>
+</div>
+
+@section scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/Trumbowyg-main/dist/trumbowyg.min.js"></script>
+    <script>
+        $('#editor').trumbowyg();
+    </script>
+}
