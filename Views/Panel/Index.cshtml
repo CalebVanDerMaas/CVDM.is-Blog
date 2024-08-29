@@ -13,11 +13,11 @@ ViewData["Title"] = "Home Page";
         <li>
                 @post.Title
             -
-            <a asp-controller="Panel" asp-action="Edit" asp-route-id="@post.Id">
+            <a asp-controller="Panel" asp-action="Edit" asp-route-slug="@post.Slug">
                 Edit
             </a>
             -
-            <a asp-controller="Panel" asp-action="Remove" asp-route-id="@post.Id">
+            <a asp-controller="Panel" asp-action="Remove" asp-route-slug="@post.Slug">
                 Remove
             </a>
         </li>

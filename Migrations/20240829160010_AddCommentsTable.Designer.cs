@@ -4,6 +4,7 @@ using CVDMBlog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CVDMBlog.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240829160010_AddCommentsTable")]
+    partial class AddCommentsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,10 +40,11 @@ namespace CVDMBlog.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("EditedAt")
-                        .HasColumnType("datetime(6)");
+                    b.Property<string>("PostId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("PostId")
+                    b.Property<int>("PostId1")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
@@ -49,7 +53,7 @@ namespace CVDMBlog.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("PostId1");
 
                     b.HasIndex("UserId");
 
@@ -293,14 +297,14 @@ namespace CVDMBlog.Migrations
                 {
                     b.HasOne("CVDMBlog.Models.Post", "Post")
                         .WithMany("Comments")
-                        .HasForeignKey("PostId")
+                        .HasForeignKey("PostId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");

@@ -40,7 +40,7 @@ public class FileManager : IFileManager
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return "Error";
+            return null;
         }
         
     }

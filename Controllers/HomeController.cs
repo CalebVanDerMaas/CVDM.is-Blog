@@ -41,9 +41,16 @@ public class HomeController : Controller
         return View();
     }
     
-    public IActionResult Post(int id)
+    public IActionResult Post(string slug, string content = null)
     {
-        var post = _repo.GetPost(id);
+        var post = _repo.GetPost(slug);
+        
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        ViewData["Content"] = content;
         return View(post);
     }
 

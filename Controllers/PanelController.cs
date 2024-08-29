@@ -34,18 +34,18 @@ public class PanelController : Controller
     }
     
     [HttpGet]
-    public IActionResult Edit(int? id)
+    public IActionResult Edit(string? slug)
     {
-        if (id == null)
+        if (slug  == null)
         {
             return View(new PostViewModel());
         }
         else
         {
-            var post = _repo.GetPost((int) id);
+            var post = _repo.GetPost((string) slug);
             return View(new PostViewModel
             {
-                Id = post.Id,
+                Id = post.Id, 
                 Title = post.Title,
                 Body = post.Body,
                 
@@ -57,14 +57,23 @@ public class PanelController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(PostViewModel vm)
     {
-        var post = new Post
+        var post = vm.Id > 0 ? _repo.GetPostById(vm.Id) : new Post();
+
+        post.Title = vm.Title;
+        post.Body = vm.Body;
+
+        if (vm.Image != null)
         {
-            Id = vm.Id,
-            Title = vm.Title,
-            Body = vm.Body,
-            Image = await _fileManager.SaveImage(vm.Image)
-        };
-        
+            var imageResult = await _fileManager.SaveImage(vm.Image);
+            if (imageResult != "Error")
+            {
+                post.Image = imageResult;
+            }
+        }
+
+        // Generate or update the slug based on the title
+        post.UpdateSlug();
+
         if (post.Id > 0)
         {
             _repo.UpdatePost(post);
@@ -73,7 +82,6 @@ public class PanelController : Controller
         {
             _repo.AddPost(post);
         }
-        
 
         if (await _repo.SaveChangesAsync())
         {
@@ -81,14 +89,15 @@ public class PanelController : Controller
         }
         else
         {
-            return View(vm); //post?
+            return View(vm);
         }
     }
+
     
     [HttpGet]
-    public async Task<IActionResult> Remove(int id)
+    public async Task<IActionResult> Remove(string slug)
     {
-        _repo.RemovePost(id);
+        _repo.RemovePost(slug);
         await _repo.SaveChangesAsync();
         return RedirectToAction("Index");
 
