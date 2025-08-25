@@ -1,17 +1,40 @@
+using CVDMBlog.Auth;
 using CVDMBlog.Data;
 using CVDMBlog.Data.Repository;
 using CVDMBlog.Data.Repository.FileManager;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.SecretsManager;
+using CVDMBlog.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(9, 0, 1))));
+//Add API key authentication scheme
+builder.Services.AddAuthentication(options =>
+{
+   
+})
+.AddScheme<AuthenticationSchemeOptions, ApiKeyAuthHandler>("ApiKey", null); // Add API key authentication
+
+// Retrieve API Key from Environment Variable
+var apiKey = Environment.GetEnvironmentVariable("CVDM_Blog_Status_Api_Key");
+
+builder.Services.AddSingleton(apiKey);
+
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    var awsSecretsService = serviceProvider.GetRequiredService<IAwsSecretsService>();
+    var secrets = awsSecretsService.GetSecretsAsync().GetAwaiter().GetResult();
+    
+    var connectionString = $"Server={secrets["CVDM-DB-Server"]};Database={secrets["CVDM-DB-Database"]};User={secrets["CVDM-DB-User"]};Password={secrets["CVDM-DB-Password"]};";
+    
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(9, 0, 1)));
+});
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
@@ -32,6 +55,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddTransient<IRepository, Repository>();
 builder.Services.AddTransient<IFileManager, FileManager>();
 
+builder.Services.AddAWSService<IAmazonSecretsManager>();
+builder.Services.AddTransient<IAwsSecretsService, AwsSecretsService>();
 var app = builder.Build();
 
 try
@@ -99,3 +124,5 @@ static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
         }
     }
 }
+
+

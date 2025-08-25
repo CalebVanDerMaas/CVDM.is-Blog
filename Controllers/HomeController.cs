@@ -33,6 +33,8 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         var posts = _repo.GetAllPosts();
+        var currentStatus = _repo.GetCurrentStatus();
+        ViewBag.CurrentStatus = currentStatus;
         return View(posts);
     }
 
@@ -59,5 +61,10 @@ public class HomeController : Controller
     {
         var mime = image.Substring(image.LastIndexOf('.') + 1);
         return new FileStreamResult(_fileManager.ImageStream(image), $"image/{mime}");
+    }
+    public IActionResult StatusHistory()
+    {
+        var statuses = _repo.GetAllStatuses();
+        return View(statuses);
     }
 }

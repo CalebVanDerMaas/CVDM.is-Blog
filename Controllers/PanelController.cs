@@ -25,6 +25,8 @@ public class PanelController : Controller
     public IActionResult Index()
     {
         var posts = _repo.GetAllPosts();
+        var currentStatus = _repo.GetCurrentStatus();
+        ViewBag.CurrentStatus = currentStatus;
         return View(posts);
     }
 
@@ -108,4 +110,38 @@ public class PanelController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> UpdateStatus(int id, string content)
+    {
+        var status = _repo.GetAllStatuses().FirstOrDefault(s => s.Id == id);
+        if (status == null)
+        {
+            return NotFound();
+        }
+
+        status.Content = content;
+        status.UpdatedAt = DateTime.Now;
+
+        _repo.UpdateStatus(status);
+        await _repo.SaveChangesAsync();
+
+        return Json(new { success = true, updatedAt = status.UpdatedAt?.ToString("g") });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddStatus(string content)
+    {
+        var newStatus = new Status
+        {
+            Content = content,
+            IsCurrent = true
+        };
+
+        _repo.AddStatus(newStatus);
+        await _repo.SaveChangesAsync();
+
+        return RedirectToAction("Index");
+    }
+    
 }

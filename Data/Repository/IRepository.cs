@@ -14,4 +14,8 @@ public interface IRepository
     void RemoveComment(int commentId);
     Comment GetComment(int commentId);
     Task<bool> SaveChangesAsync();
+    Status GetCurrentStatus();
+    void AddStatus(Status status);
+    void UpdateStatus(Status status);
+    List<Status> GetAllStatuses();
 }

@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext
     }
     public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    public DbSet<Status> Statuses { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

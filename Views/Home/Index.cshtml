@@ -1,21 +1,31 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+ViewData["Title"] = "Home Page";
 }
 @model IEnumerable<Post>
-<div class="text-center">
-    <h1 class="display-4" style="text-align: center;">Caleb VanDerMaas is...</h1>
-</div>
-
-<div>
-    <ul>
-        @foreach (var post in Model)
+<div class="content-wrapper">
+    <div class="text-center">
+        <h1 class="display-4">Caleb VanDerMaas is...</h1>
+        @if (ViewBag.CurrentStatus != null)
         {
+        <div class="current-status-container">
+            <a asp-controller="Home" asp-action="StatusHistory" class="current-status">
+                <span class="status-indicator"></span>
+                <span class="status-content">@ViewBag.CurrentStatus.Content</span>
+            </a>
+        </div>
+        }
+    </div>
+
+    <div class="post-list">
+        <ul>
+            @foreach (var post in Model)
+            {
             <li>
                 <a asp-controller="Home" asp-action="Post" asp-route-slug="@post.Slug">
                     @post.Title
                 </a>
             </li>
-        }
-    </ul>
+            }
+        </ul>
+    </div>
 </div>
-

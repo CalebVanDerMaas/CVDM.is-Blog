@@ -75,4 +75,44 @@ public class Repository : IRepository
         }
         return false;
     }
+    
+    public Status GetCurrentStatus()
+    {
+        return _ctx.Statuses.FirstOrDefault(s => s.IsCurrent);
+    }
+
+    public void AddStatus(Status status)
+    {
+        if (status.IsCurrent)
+        {
+            var currentStatus = GetCurrentStatus();
+            if (currentStatus != null)
+            {
+                currentStatus.IsCurrent = false;
+                _ctx.Statuses.Update(currentStatus);
+            }
+        }
+        status.IsCurrent = true;
+        _ctx.Statuses.Add(status);
+    }
+
+    public void UpdateStatus(Status status)
+    {
+        if (status.IsCurrent)
+        {
+            var currentStatus = GetCurrentStatus();
+            if (currentStatus != null && currentStatus.Id != status.Id)
+            {
+                currentStatus.IsCurrent = false;
+                _ctx.Statuses.Update(currentStatus);
+            }
+        }
+        status.UpdatedAt = DateTime.Now;
+        _ctx.Statuses.Update(status);
+    }
+
+    public List<Status> GetAllStatuses()
+    {
+        return _ctx.Statuses.OrderByDescending(s => s.CreatedAt).ToList();
+    }
 }

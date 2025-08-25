@@ -1,0 +1,34 @@
+@model List<Status>
+
+<h1>Status History</h1>
+
+<div class="status-list">
+    @foreach (var status in Model)
+    {
+        <div class="status-item @(status.IsCurrent ? "current-status" : "")">
+            <span class="status-content">@status.Content</span>
+            <span class="status-timestamp">@status.CreatedAt.ToString("g")</span>
+        </div>
+    }
+</div>
+
+<style>
+    .status-list {
+        margin-top: 20px;
+    }
+    .status-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+    .status-timestamp {
+        font-size: 0.8em;
+        color: #666;
+        margin-left: 10px;
+    }
+    .current-status {
+        color: red;
+        animation: fade 2s infinite;
+    }
+    
+</style>

@@ -70,13 +70,12 @@
     </main>
 </div>
 
-<footer class="border-top footer text-muted" style="position: fixed; bottom: 15px; width: 100%; text-align: center;">
-    <div class="container">
+<footer class="footer text-muted">
+    <div class="container text-center" style="text-align: center; margin-top: 30px">
         &copy; 2024 - CVDMBlog - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>

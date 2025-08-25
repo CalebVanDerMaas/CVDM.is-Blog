@@ -4,19 +4,21 @@
 
 @inject UserManager<IdentityUser> UserManager
 
-<div class="text-center">
-    <h1 style="text-align: center">Caleb VanDerMaas is</h1>
-    <h2 class="display-3" style="text-align: center">@Model.Title</h2>
-    @if (!String.IsNullOrEmpty(Model.Image))
-    {
-    var image_path = $"/Image/{Model.Image}";
-    <img src="@image_path" width="500px"/>
-    }
-    <p>@Html.Raw(Model.Body?.Replace("\n", "<br />"))</p>
+<div class="post-container">
+    <h1 class="text-center">Caleb VanDerMaas is</h1>
+    <h2 class="display-3 text-center">@Model.Title</h2>
 
-    <h2>Comments</h2>
-     @foreach (var comment in Model.Comments)
-    {
+    <div class="post-content">
+        @if (!String.IsNullOrEmpty(Model.Image))
+        {
+        var image_path = $"/Image/{Model.Image}";
+        <img src="@image_path" style="max-width: 100%; height: auto;"/>
+        }
+        <div>@Html.Raw(Model.Body?.Replace("\n", "<br />"))</div>
+
+        <h2>Comments</h2>
+        @foreach (var comment in Model.Comments)
+        {
         <div class="comment" id="comment-@comment.Id">
             <p>
                 <strong>@comment.User.UserName</strong>
@@ -30,130 +32,156 @@
 
             @if (comment.UserId == UserManager.GetUserId(User) || User.IsInRole("Admin"))
             {
-                <div class="comment-actions">
-                    <button class="edit-comment-btn" data-comment-id="@comment.Id">Edit</button>
-                    <button class="delete-comment-btn" data-comment-id="@comment.Id">Delete</button>
-                </div>
-                <div class="edit-form" style="display:none;">
-                    <textarea class="edit-content">@comment.Content</textarea>
-                    <button class="save-edit-btn">Save</button>
-                    <button class="cancel-edit-btn">Cancel</button>
-                </div>
+            <div class="comment-actions">
+                <button class="edit-comment-btn" data-comment-id="@comment.Id">Edit</button>
+                <button class="delete-comment-btn" data-comment-id="@comment.Id">Delete</button>
+            </div>
+            <div class="edit-form" style="display:none;">
+                <textarea class="edit-content">@comment.Content</textarea>
+                <button class="save-edit-btn">Save</button>
+                <button class="cancel-edit-btn">Cancel</button>
+            </div>
             }
         </div>
-    }
-    @if (TempData["CommentMessage"] != null)
-    {
-    <div class="alert alert-info">@TempData["CommentMessage"]</div>
-    }
-    <h3>Add a Comment</h3>
-    <form asp-action="AddComment" asp-controller="Post" method="post" style="display: flex; position: relative; max-width: 600px;">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <textarea name="content" style="width: calc(100% - 135px); min-height: 100px; resize: vertical; padding: 10px; margin-right: 20px;">@(ViewData["Content"] ?? "")</textarea>
-        <span id="commentError" class="text-danger" style="display: none;">Comment cannot be empty.</span>
-        <button type="submit" style="position: absolute; bottom: 0; right: 0; height: 40px; width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px;">Add Comment</button>
-    </form>
+        }
+        @if (TempData["CommentMessage"] != null)
+        {
+        <div class="alert alert-info">@TempData["CommentMessage"]</div>
+        }
+        <h3>Add a Comment</h3>
+        <form asp-action="AddComment" asp-controller="Post" method="post" class="comment-form">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <textarea name="content" id="commentContent">@(ViewData["Content"] ?? "")</textarea>
+            <span id="commentError" class="text-danger" style="display: none;">Comment cannot be empty.</span>
+            <button type="submit">Add Comment</button>
+        </form>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-function validateCommentForm() {
-    var content = document.getElementById('commentContent').value.trim();
-    if (content === '') {
-        document.getElementById('commentError').style.display = 'block';
-        return false;
-    }
-    document.getElementById('commentError').style.display = 'none';
-    return true;
-}
-$(document).ready(function() {
-    // Format creation and edit times
-    $('.creation-time').each(function() {
-        var createdDate = new Date($(this).data('created'));
-        $(this).text('(' + createdDate.toLocaleString() + ')');
-    });
-
-    $('.edit-time').each(function() {
-        var editedAttr = $(this).attr('data-edited');
-        if (editedAttr) {
-            var editedDate = new Date(editedAttr);
-            $(this).text('(Edited: ' + editedDate.toLocaleString() + ')');
+    function validateCommentForm() {
+        var content = document.getElementById('commentContent').value.trim();
+        if (content === '') {
+            document.getElementById('commentError').style.display = 'block';
+            return false;
         }
-    });
-    $('.edit-comment-btn').click(function() {
-        var commentId = $(this).data('comment-id');
-        $('#comment-' + commentId + ' .comment-content').hide();
-        $('#comment-' + commentId + ' .comment-actions').hide();
-        $('#comment-' + commentId + ' .edit-form').show();
-    });
+        document.getElementById('commentError').style.display = 'none';
+        return true;
+    }
+    $(document).ready(function() {
+        // Format creation and edit times
+        $('.creation-time').each(function() {
+            var createdDate = new Date($(this).data('created'));
+            $(this).text('(' + createdDate.toLocaleString() + ')');
+        });
 
-    $('.cancel-edit-btn').click(function() {
-        var commentDiv = $(this).closest('.comment');
-        commentDiv.find('.comment-content').show();
-        commentDiv.find('.comment-actions').show();
-        commentDiv.find('.edit-form').hide();
-    });
+        $('.edit-time').each(function() {
+            var editedAttr = $(this).attr('data-edited');
+            if (editedAttr) {
+                var editedDate = new Date(editedAttr);
+                $(this).text('(Edited: ' + editedDate.toLocaleString() + ')');
+            }
+        });
+        $('.edit-comment-btn').click(function() {
+            var commentId = $(this).data('comment-id');
+            $('#comment-' + commentId + ' .comment-content').hide();
+            $('#comment-' + commentId + ' .comment-actions').hide();
+            $('#comment-' + commentId + ' .edit-form').show();
+        });
 
-    $('.save-edit-btn').click(function() {
-        var commentDiv = $(this).closest('.comment');
-        var commentId = commentDiv.attr('id').split('-')[1];
-        var content = commentDiv.find('.edit-content').val();
+        $('.cancel-edit-btn').click(function() {
+            var commentDiv = $(this).closest('.comment');
+            commentDiv.find('.comment-content').show();
+            commentDiv.find('.comment-actions').show();
+            commentDiv.find('.edit-form').hide();
+        });
 
-        $.ajax({
-            url: '@Url.Action("EditComment", "Post")',
-            type: 'POST',
-            data: { commentId: commentId, content: content },
-            success: function(response) {
-                if (response.success) {
-                    commentDiv.find('.comment-content').text(content).show();
-                    commentDiv.find('.comment-actions').show();
-                    commentDiv.find('.edit-form').hide();
+        $('.save-edit-btn').click(function() {
+            var commentDiv = $(this).closest('.comment');
+            var commentId = commentDiv.attr('id').split('-')[1];
+            var content = commentDiv.find('.edit-content').val();
 
-                    // Update or add the edit time
-                    var editTimeSpan = commentDiv.find('.edit-time');
-                    if (editTimeSpan.length === 0) {
-                        commentDiv.find('p:first').append('<span class="edit-time"></span>');
-                        editTimeSpan = commentDiv.find('.edit-time');
+            $.ajax({
+                url: '@Url.Action("EditComment", "Post")',
+                type: 'POST',
+                data: { commentId: commentId, content: content },
+                success: function(response) {
+                    if (response.success) {
+                        commentDiv.find('.comment-content').text(content).show();
+                        commentDiv.find('.comment-actions').show();
+                        commentDiv.find('.edit-form').hide();
+
+                        // Update or add the edit time
+                        var editTimeSpan = commentDiv.find('.edit-time');
+                        if (editTimeSpan.length === 0) {
+                            commentDiv.find('p:first').append('<span class="edit-time"></span>');
+                            editTimeSpan = commentDiv.find('.edit-time');
+                        }
+                        editTimeSpan.text('(Edited: ' + response.editedAt + ')');
                     }
-                    editTimeSpan.text('(Edited: ' + response.editedAt + ')');
                 }
+            });
+        });
+
+        $('.delete-comment-btn').click(function() {
+            var commentId = $(this).data('comment-id');
+            if (confirm('Are you sure you want to delete this comment?')) {
+                $.ajax({
+                    url: '@Url.Action("DeleteComment", "Post")',
+                    type: 'POST',
+                    data: { commentId: commentId },
+                    success: function(response) {
+                        $('#comment-' + commentId).remove();
+                    }
+                });
             }
         });
     });
 
-    $('.delete-comment-btn').click(function() {
-        var commentId = $(this).data('comment-id');
-        if (confirm('Are you sure you want to delete this comment?')) {
-            $.ajax({
-                url: '@Url.Action("DeleteComment", "Post")',
-                type: 'POST',
-                data: { commentId: commentId },
-                success: function(response) {
-                    $('#comment-' + commentId).remove();
-                }
-            });
-        }
-    });
-});
-
 </script>
 
 <style>
-.comment-actions button {
-    font-size: 0.8em;
-    text-decoration: underline;
-    background: none;
-    border: none;
-    color: blue;
-    cursor: pointer;
-    margin-right: 10px;
-}
-.edit-form {
-    margin-top: 10px;
-}
-.edit-form textarea {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
+    .post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .post-content {
+        text-align: left;
+    }
+    .comment {
+        margin-bottom: 20px;
+    }
+    .comment-actions button {
+        font-size: 0.8em;
+        text-decoration: underline;
+        background: none;
+        border: none;
+        color: blue;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    .edit-form {
+        margin-top: 10px;
+    }
+    .edit-form textarea {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .comment-form {
+        display: flex;
+        flex-direction: column;
+        max-width: 600px;
+    }
+    .comment-form textarea {
+        min-height: 100px;
+        margin-bottom: 10px;
+    }
+    .comment-form button {
+        align-self: flex-start;
+    }
 </style>
